@@ -103,6 +103,24 @@ cloud_shape_88 = """
 .08.09.10.11.12.13.14.15      c31b31            b32c32
 """
 
+boxes = """
+a00a01a02a03a04a05   c00c01c02c03c04c05   e00e01e02e03e04e05   +01+24   .00.08
+a10a11a12a13a14a15   c10c11c12c13c14c15   e10e11e12e13e14e15   +02+23   .01.09
+a20a21a22a23a24a25   c20c21c22c23c24c25   e20e21e22e23e24e25   +03+22   .02.10
+a30a31a32a33a34a35   c30c31c32c33c34c35   e30e31e32e33e34e35   +04+21   .03.11
+a40a41a42a43a44a45   c40c41c42c43c44c45   e40e41e42e43e44e45   +05+20   .04.12
+a50a51a52a53a54a55   c50c51c52c53c54c55   e50e51e52e53e54e55   +06+19   .05.13
+                                                               +07+18   .06.14
+                                                               +08+17   .07.15
+b00b01b02b03b04b05   d00d01d02d03d04d05   f00f01f02f03f04f05   +09+16
+b10b11b12b13b14b15   d10d11d12d13d14d15   f10f11f12f13f14f15   +10+15
+b20b21b22b23b24b25   d20d21d22d23d24d25   f20f21f22f23f24f25   +11+14
+b30b31b32b33b34b35   d30d31d32d33d34d35   f30f31f32f33f34f35   +12+13
+b40b41b42b43b44b45   d40d41d42d43d44d45   f40f41f42f43f44f45   
+b50b51b52b53b54b55   d50d51d52d53d54d55   f50f51f52f53f54f55
+"""
+
+
 slices = """
 a00a01a02a03a04a05   c05c04c03c02c01c00   e00e01e02e03e04e05   +01+24   .00.08
 a10a11a12a13a14a15   c15c14c13c12c11c10   e10e11e12e13e14e15   +02+23   .01.09
@@ -231,6 +249,7 @@ charts = {
     256: {
         'cows': cow_shape,
         'whales': whale_shape,
+        'boxes' : boxes,
         'slices': slices,
         'ribbon': ribbon,
         'clouds': cloud_shape,}}
@@ -242,16 +261,15 @@ cube_start = 16 # first index of colour cube
 cube_size = 6 # one side of the colour cube
 gray_start = cube_size ** 3 + cube_start
 colours = 256
-# values copied from xterm 256colres.h:
+# Values from: http://www.calmar.ws/vim/256-xterm-24bit-rgb-color-chart.html
 cube_steps = 0x00, 0x5f, 0x87, 0xaf, 0xd7, 0xff
-gray_steps = (0x08, 0x12, 0x1c, 0x26, 0x30, 0x3a, 0x44, 0x4e, 0x58, 0x62,
-    0x6c, 0x76, 0x80, 0x84, 0x94, 0x9e, 0xa8, 0xb2, 0xbc, 0xc6, 0xd0,
+gray_steps = (0x08, 0x12, 0x1c, 0x26, 0x30, 0x3a, 0x44, 0x4e, 0x58, 0x60,
+    0x66, 0x76, 0x80, 0x8a, 0x94, 0x9e, 0xa8, 0xb2, 0xbc, 0xc6, 0xd0,
     0xda, 0xe4, 0xee)
-# values copied from X11/rgb.txt and XTerm-col.ad:
-basic_colours = ((0,0,0), (205, 0, 0), (0, 205, 0), (205, 205, 0),
-    (0, 0, 238), (205, 0, 205), (0, 205, 205), (229, 229, 229),
-    (127, 127, 127), (255, 0, 0), (0, 255, 0), (255, 255, 0),
-    (0x5c, 0x5c, 0xff), (255, 0, 255), (0, 255, 255), (255, 255, 255))
+basic_colours = ((0,0,0), (128, 0, 0), (0, 128, 0), (128, 128, 0),
+    (0, 0, 128), (128, 0, 128), (0, 128, 128), (192, 192, 192),
+    (128, 128, 128), (255, 0, 0), (0, 255, 0), (255, 255, 0),
+    (0, 0, 255), (255, 0, 255), (0, 255, 255), (255, 255, 255))
 
 def set_88_colour_mode():
     """Switch to 88-colour mode."""
@@ -291,7 +309,7 @@ def n_to_gray(n):
     """Return an approximate desaturated value for colour-number n.
     Value is between 0.0 and 255.0."""
     r, g, b = n_to_rgb(n)
-    return 0.3*r + 0.59*g + 0.11*b
+    return 0.21*r + 0.71*g + 0.07*b
 
 def n_to_prt(n):
     """Convert a colour number to the format used in the colour charts."""
@@ -433,22 +451,14 @@ def draw_chart(chart, origin, angle, hexadecimal, decimal, urwidmal, cell_cols,
     def block(n, row):
         if not any((hexadecimal, decimal, urwidmal)) or row!=cell_rows-1:
             return "\x1b[48;5;%dm%s" % (n, cell_pad)
-        y = n_to_gray(n)
-        if y>0x30:
-            # use black text
-            if hexadecimal:
-                return "\x1b[48;5;%d;30m%02x%s" % (n, n, cell_pad[2:])
-            elif decimal:
-                return "\x1b[48;5;%d;30m%03d%s" % (n, n, cell_pad[3:])
-            elif urwidmal:
-                return "\x1b[48;5;%d;30m%4s%s" % (n, urwidify(n), cell_pad[4:])
-        # else use gray text
+        # Use a contrasting foreground color.
+        fg = "37" if n_to_gray(n) <= n_to_gray(8) else "30"
         if hexadecimal:
-            return "\x1b[48;5;%d;37m%02x%s" % (n, n, cell_pad[2:])
+            return "\x1b[48;5;%d;%sm%02x%s" % (n, fg, n, cell_pad[2:])
         elif decimal:
-            return "\x1b[48;5;%d;37m%03d%s" % (n, n, cell_pad[3:])
+            return "\x1b[48;5;%d;%sm%03d%s" % (n, fg, n, cell_pad[3:])
         elif urwidmal:
-            return "\x1b[48;5;%d;37m%4s%s" % (n, urwidify(n), cell_pad[4:])
+            return "\x1b[48;5;%d;%sm%4s%s" % (n, fg, urwidify(n), cell_pad[4:])
 
     def blank():
         return "\x1b[0m%s" % (cell_pad,)
