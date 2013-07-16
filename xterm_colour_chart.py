@@ -104,21 +104,34 @@ cloud_shape_88 = """
 """
 
 boxes = """
-a00a01a02a03a04a05   b00b01b02b03b04b05   c00c01c02c03c04c05
-a10a11a12a13a14a15   b10b11b12b13b14b15   c10c11c12c13c14c15
-a20a21a22a23a24a25   b20b21b22b23b24b25   c20c21c22c23c24c25
-a30a31a32a33a34a35   b30b31b32b33b34b35   c30c31c32c33c34c35
-a40a41a42a43a44a45   b40b41b42b43b44b45   c40c41c42c43c44c45
-a50a51a52a53a54a55   b50b51b52b53b54b55   c50c51c52c53c54c55   .00.08
-                                                               .01.09
-d00d01d02d03d04d05   e00e01e02e03e04e05   f00f01f02f03f04f05   .02.10
-d10d11d12d13d14d15   e10e11e12e13e14e15   f10f11f12f13f14f15   .03.11
-d20d21d22d23d24d25   e20e21e22e23e24e25   f20f21f22f23f24f25   .04.12
-d30d31d32d33d34d35   e30e31e32e33e34e35   f30f31f32f33f34f35   .05.13
-d40d41d42d43d44d45   e40e41e42e43e44e45   f40f41f42f43f44f45   .06.14
-d50d51d52d53d54d55   e50e51e52e53e54e55   f50f51f52f53f54f55   .07.15
+a00a01a02a03a04a05      b00b01b02b03b04b05      c00c01c02c03c04c05
+a10a11a12a13a14a15      b10b11b12b13b14b15      c10c11c12c13c14c15
+a20a21a22a23a24a25      b20b21b22b23b24b25      c20c21c22c23c24c25
+a30a31a32a33a34a35      b30b31b32b33b34b35      c30c31c32c33c34c35
+a40a41a42a43a44a45      b40b41b42b43b44b45      c40c41c42c43c44c45
+a50a51a52a53a54a55      b50b51b52b53b54b55      c50c51c52c53c54c55
+                                             
+d00d01d02d03d04d05      e00e01e02e03e04e05      f00f01f02f03f04f05
+d10d11d12d13d14d15      e10e11e12e13e14e15      f10f11f12f13f14f15
+d20d21d22d23d24d25      e20e21e22e23e24e25      f20f21f22f23f24f25
+d30d31d32d33d34d35      e30e31e32e33e34e35      f30f31f32f33f34f35
+d40d41d42d43d44d45      e40e41e42e43e44e45      f40f41f42f43f44f45
+d50d51d52d53d54d55      e50e51e52e53e54e55      f50f51f52f53f54f55
 
-+01+02+03+04+05+06+07+08+09+10+11+12+13+14+15+16+17+18+19+20+21+22+23+24
++01+02+03+04+05+06+07+08+09+10+11+12      .00.01.02.03.04.05.06.07
++24+23+22+21+20+19+18+17+16+15+14+13      .08.09.10.11.12.13.14.15
+"""
+
+
+boxes_88 = """
+a00a01a02a03   c03c02c01c00   +01   .00.08
+a10a11a12a13   c13c12c11c10   +02   .01.09
+a20a21a22a23   c23c22c21c20   +03   .02.10
+a30a31a32a33   c33c32c31c30   +04   .03.11
+b30b31b32b33   d33d32d31d30   +05   .04.12
+b20b21b22b23   d23d22d21d20   +06   .05.13
+b10b11b12b13   d13d12d11d10   +07   .06.14
+b00b01b02b03   d03d02d01d00   +08   .07.15
 """
 
 
@@ -244,6 +257,7 @@ charts = {
     88: {
         'cows': cow_shape_88,
         'whales': whale_shape_88,
+        'boxes' : boxes_88,
         'slices': slices_88,
         'ribbon': ribbon_88,
         'clouds': cloud_shape_88,},
@@ -262,47 +276,39 @@ cube_start = 16 # first index of colour cube
 cube_size = 6 # one side of the colour cube
 gray_start = cube_size ** 3 + cube_start
 colours = 256
-# Values from mintty/wintext.c and xterm/256colres.h:
+# Values from xterm/256colres.h:
 cube_steps = (0x00, 0x5f, 0x87, 0xaf, 0xd7, 0xff)
 gray_steps = (0x08, 0x12, 0x1c, 0x26, 0x30, 0x3a, 0x44, 0x4e, 0x58, 0x60,
         0x66, 0x76, 0x80, 0x8a, 0x94, 0x9e, 0xa8, 0xb2, 0xbc, 0xc6, 0xd0,
         0xda, 0xe4, 0xee)
-if 1:
-    # Values from mintty/config.c:
-    basic_colours = (
-            (0x00, 0x00, 0x00), (0xbf, 0x00, 0x00),
-            (0x00, 0xbf, 0x00), (0xbf, 0xbf, 0x00),
-            (0x00, 0x00, 0xbf), (0xbf, 0x00, 0xbf),
-            (0x00, 0xbf, 0xbf), (0xbf, 0xbf, 0xbf),
-            (0x40, 0x40, 0x40), (0xff, 0x40, 0x40),
-            (0x40, 0xff, 0x40), (0xff, 0xff, 0x40),
-            (0x60, 0x60, 0xff), (0xff, 0x40, 0xff),
-            (0x40, 0xff, 0xff), (0xff, 0xff, 0xff))
-elif 0:
-    # Values from X11/rgb.txt and XTerm-col.ad:
-    basic_colours = (
-            (0x00, 0x00, 0x00), # black
-            (0xcd, 0x00, 0x00), # red3
-            (0x00, 0xcd, 0x00), # green3
-            (0xcd, 0xcd, 0x00), # yellow3
-            (0x00, 0x00, 0xee), # blue2
-            (0xcd, 0x00, 0xcd), # magenta3
-            (0x00, 0xcd, 0xcd), # cyan3
-            (0xe5, 0xe5, 0xe5), # gray90
-            (0x7f, 0x7f, 0x7f), # gray50
-            (0xff, 0x00, 0x00), # red
-            (0x00, 0xff, 0x00), # green
-            (0xff, 0xff, 0x00), # yellow
-            (0x5c, 0x5c, 0xff), # rgb:5c/5c/ff
-            (0xff, 0x00, 0xff), # magenta
-            (0x00, 0xff, 0xff), # cyan
-            (0xff, 0xff, 0xff)) # white
-elif 0:
-    # Values from http://www.calmar.ws/vim/256-xterm-24bit-rgb-color-chart.html
-    basic_colours = ((0,0,0), (128, 0, 0), (0, 128, 0), (128, 128, 0),
-            (0, 0, 128), (128, 0, 128), (0, 128, 128), (192, 192, 192),
-            (128, 128, 128), (255, 0, 0), (0, 255, 0), (255, 255, 0),
-            (0, 0, 255), (255, 0, 255), (0, 255, 255), (255, 255, 255))
+# Values from X11/rgb.txt and XTerm-col.ad:
+basic_colours = (
+        (0x00, 0x00, 0x00), # black
+        (0xcd, 0x00, 0x00), # red3
+        (0x00, 0xcd, 0x00), # green3
+        (0xcd, 0xcd, 0x00), # yellow3
+        (0x00, 0x00, 0xee), # blue2
+        (0xcd, 0x00, 0xcd), # magenta3
+        (0x00, 0xcd, 0xcd), # cyan3
+        (0xe5, 0xe5, 0xe5), # gray90
+        (0x7f, 0x7f, 0x7f), # gray50
+        (0xff, 0x00, 0x00), # red
+        (0x00, 0xff, 0x00), # green
+        (0xff, 0xff, 0x00), # yellow
+        (0x5c, 0x5c, 0xff), # rgb:5c/5c/ff
+        (0xff, 0x00, 0xff), # magenta
+        (0x00, 0xff, 0xff), # cyan
+        (0xff, 0xff, 0xff)) # white
+# Values from mintty/config.c:
+mintty_basic_colours = (
+        (0x00, 0x00, 0x00), (0xbf, 0x00, 0x00),
+        (0x00, 0xbf, 0x00), (0xbf, 0xbf, 0x00),
+        (0x00, 0x00, 0xbf), (0xbf, 0x00, 0xbf),
+        (0x00, 0xbf, 0xbf), (0xbf, 0xbf, 0xbf),
+        (0x40, 0x40, 0x40), (0xff, 0x40, 0x40),
+        (0x40, 0xff, 0x40), (0xff, 0xff, 0x40),
+        (0x60, 0x60, 0xff), (0xff, 0x40, 0xff),
+        (0x40, 0xff, 0xff), (0xff, 0xff, 0xff))
 
 def set_88_colour_mode():
     """Switch to 88-colour mode."""
