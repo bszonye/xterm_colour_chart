@@ -344,11 +344,25 @@ def n_to_rgb(n):
         return [cube_steps[v] for v in cube_vals(n)]
     return (gray_steps[n-gray_start],) * 3
 
+def linear(c):
+    """Convert sRGB channel to linear color space."""
+    return c/12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+def sRGB(c):
+    """Convert linear color value to sRGB color space."""
+    return 12.92*c if c <= 0.0031308 else 1.055*(c**(1.0/2.4)) - 0.055
+
 def n_to_gray(n):
-    """Return an approximate desaturated value for colour-number n.
-    Value is between 0.0 and 255.0."""
+    """Return an approximate desaturated value for colour-number n."""
     r, g, b = n_to_rgb(n)
-    return 0.21*r + 0.71*g + 0.07*b
+    # Convert sRGB channels to linear color space.
+    lR = linear(r/255.0)
+    lG = linear(g/255.0)
+    lB = linear(b/255.0)
+    # Compute intensity.
+    lY = 0.2126*lR + 0.7152*lG + 0.0722*lB
+    # Convert intensity from linear color space to sRGB.
+    return 255.0*sRGB(lY)
 
 def n_to_prt(n):
     """Convert a colour number to the format used in the colour charts."""
@@ -491,7 +505,7 @@ def draw_chart(chart, origin, angle, hexadecimal, decimal, urwidmal, cell_cols,
         if not any((hexadecimal, decimal, urwidmal)) or row!=cell_rows-1:
             return "\x1b[48;5;%dm%s" % (n, cell_pad)
         # Use a contrasting foreground color.
-        fg = "37" if n_to_gray(n) < 0x40 else "30"
+        fg = "37" if n_to_gray(n) <= n_to_gray(8) else "30"
         if hexadecimal:
             return "\x1b[48;5;%d;%sm%02x%s" % (n, fg, n, cell_pad[2:])
         elif decimal:
