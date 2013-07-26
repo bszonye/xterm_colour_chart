@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/bin/env python
 
 """
 XTerm Colour Chart
