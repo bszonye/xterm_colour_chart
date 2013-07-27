@@ -139,6 +139,41 @@ b30b31b32b33   d30d31d32d33
 """
 
 
+hues = """
+
+a00   b00c00d00e00f00f10e10f20d10e20f30c10d20e30f40
++01   .01.09      f11f21f31               f41
++02         d11e11f22e21d21         e31
++03      c11   e22f33f32e32         f42
++04         d22e33f44   f43
++05   b10c20d30e40f50e50d40c30b20d50c40b30c50b40b50
++06      c21d31e41f51   e51d41c31   d51c41   c51
++07         d32e42f52      e52d42      d52
++08   .03.11   e43f53         e53
++09               f54
+b11   a10a20a30a40a50a51a41a52a31a42a53a21a32a43a54
++10      b21b31b41b51   b52   b42b53   b32b43b54
++11         c32c42c52         c53      c43c54
++12   .02.10   d43d53                  d54
++13               e54
+c22   a11a22a33a44a55a45a34a23a12a35a24a13a25a14a15
++14      b22b33b44b55   b45b34b23   b35b24   b25
++15         c33c44c55      c45c34      c35
++16   .06.14   d44d55         d45
++17               e55
+d33   a01a02a03a04a05b05b04c05b03c04d05b02c03d04e05
++18      b12b13b14b15   c15   c14d15   c13d14e15
++19         c23c24c25         d25      d24e25
++20   .04.12   d34d35                  e35
++21               e45
+e44   b01c02d03e04f05f04e03d02c01f03e02d01f02e01f01
++22      c12d13e14f15   f14e13d12   f13e12   f12
++23         d23e24f25      f24e23      f23
++24   .05.13   e34f35         f34
+f55               f45                  .00.08.07.15
+"""
+
+
 slices = """
 a00a01a02a03a04a05   c05c04c03c02c01c00   e00e01e02e03e04e05   +01+24   .00.08
 a10a11a12a13a14a15   c15c14c13c12c11c10   e10e11e12e13e14e15   +02+23   .01.09
@@ -268,6 +303,7 @@ charts = {
         'cows': cow_shape,
         'whales': whale_shape,
         'boxes' : boxes,
+        'hues'  : hues,
         'slices': slices,
         'ribbon': ribbon,
         'clouds': cloud_shape,}}
@@ -355,17 +391,48 @@ def sRGB(c):
     """Convert linear color value to sRGB color space."""
     return 12.92*c if c <= 0.0031308 else 1.055*(c**(1.0/2.4)) - 0.055
 
-def n_to_gray(n):
-    """Return an approximate desaturated value for colour-number n."""
+def n_to_lRGB(n):
+    """Convert color number to linear RGB."""
     r, g, b = n_to_rgb(n)
     # Convert sRGB channels to linear color space.
-    lR = linear(r/255.0)
-    lG = linear(g/255.0)
-    lB = linear(b/255.0)
+    return linear(r/255.0), linear(g/255.0), linear(b/255.0)
+
+def n_to_sRGB(n):
+    """Convert color number to linear RGB."""
+    r, g, b = n_to_rgb(n)
+    # Convert sRGB channels to linear color space.
+    return (r/255.0), (g/255.0), (b/255.0)
+
+def n_to_HSV(n):
+    """Convert color number to HSV."""
+    R, G, B = n_to_sRGB(n)
+
+    # Value:
+    V = max(R, G, B)
+    delta = V - min(R, G, B)
+    if delta == 0: return None, 0, V
+
+    # Saturation:
+    S = delta / V
+
+    # Hue:
+    if R == V:
+        H = (G - B) * 60 / delta
+    elif G == V:
+        H = (B - R) * 60 / delta + 120
+    else:
+        H = (R - G) * 60 / delta + 240
+    if H < 0: H += 360
+
+    return round(H), S, V
+
+def n_to_gray(n):
+    """Return an approximate desaturated value for colour-number n."""
+    R, G, B = n_to_lRGB(n)
     # Compute intensity.
-    lY = 0.2126*lR + 0.7152*lG + 0.0722*lB
+    Y = 0.2126*R + 0.7152*G + 0.0722*B
     # Convert intensity from linear color space to sRGB.
-    return round(255.0*sRGB(lY))
+    return round(255.0*sRGB(Y))
 
 def n_to_prt(n):
     """Convert a colour number to the format used in the colour charts."""
@@ -472,8 +539,7 @@ def parse_chart(chart):
     return oall
 
 
-def draw_chart(chart, origin, angle, hexadecimal, decimal, urwidmal, graymal,
-        cell_cols, cell_rows):
+def draw_chart(chart, options):
     """Draw a colour chart on the screen.
 
     chart -- chart data parsed by parse_chart()
@@ -483,22 +549,27 @@ def draw_chart(chart, origin, angle, hexadecimal, decimal, urwidmal, graymal,
     decimal -- if True display decimal palette numbers on the chart
     urwidmal -- if True display urwid palette colour on the chart
     graymal -- if True display gray level on the chart
-    cell_cols -- number of screen columns per cell
-    cell_rows -- number of screen rows per cell
+    columns -- number of screen columns per cell
+    rows -- number of screen rows per cell
     """
-    amap = [(0,1,2), (1,2,0), (2,0,1), (0,2,1), (1,0,2), (2,1,0)][angle]
+    amap = [(0,1,2), (1,2,0), (2,0,1), (0,2,1), (1,0,2),
+            (2,1,0)][options.angle]
     omap = [(1,1,1), (1,1,-1), (1,-1,-1), (1,-1,1),
-        (-1,-1,1), (-1,-1,-1), (-1,1,-1), (-1,1,1)][origin]
+            (-1,-1,1), (-1,-1,-1), (-1,1,-1), (-1,1,1)][options.origin]
 
-    if hexadecimal and cell_cols < 2:
-        cell_cols = 2
-    elif decimal and cell_cols < 3:
-        cell_cols = 3
-    elif urwidmal and cell_cols < 4:
-        cell_cols = 4
-    elif graymal and cell_cols < 2:
-        cell_cols = 2
-    cell_pad = " "*cell_cols
+    if options.hexadecimal and options.columns < 2:
+        options.columns = 2
+    elif options.decimal and options.columns < 3:
+        options.columns = 3
+    elif options.urwidmal and options.columns < 4:
+        options.columns = 4
+    elif options.graymal and options.columns < 2:
+        options.columns = 2
+    elif options.huemal and options.columns < 3:
+        options.columns = 3
+    elif options.satmal and options.columns < 3:
+        options.columns = 3
+    cell_pad = " "*options.columns
 
     def transform_block(n, row):
         v = cube_vals(n)
@@ -508,26 +579,36 @@ def draw_chart(chart, origin, angle, hexadecimal, decimal, urwidmal, graymal,
         return block(vtrans, row)
 
     def block(n, row):
-        if (not any((hexadecimal, decimal, urwidmal, graymal)) or
-                row!=cell_rows-1):
+        if (not any((options.hexadecimal, options.decimal, options.urwidmal,
+            options.graymal, options.huemal, options.satmal)) or
+            row!=options.rows-1):
             return "\x1b[48;5;%dm%s" % (n, cell_pad)
+        hue, sat, val = n_to_HSV(n)
+        hexsat = round(255.0*sat)
         # Use a contrasting foreground color.
         gray = n_to_gray(n)
         fg = "37" if gray <= n_to_gray(8) else "30"
-        if hexadecimal:
+        if options.hexadecimal:
             return "\x1b[48;5;%d;%sm%02x%s" % (n, fg, n, cell_pad[2:])
-        elif decimal:
+        elif options.decimal:
             return "\x1b[48;5;%d;%sm%03d%s" % (n, fg, n, cell_pad[3:])
-        elif urwidmal:
+        elif options.urwidmal:
             return "\x1b[48;5;%d;%sm%4s%s" % (n, fg, urwidify(n), cell_pad[4:])
-        elif graymal:
+        elif options.graymal:
             return "\x1b[48;5;%d;%sm%02x%s" % (n, fg, gray, cell_pad[2:])
+        elif options.huemal:
+            if hue is not None:
+                return "\x1b[48;5;%d;%sm%3d%s" % (n, fg, hue, cell_pad[3:])
+            else:
+                return "\x1b[48;5;%d;%sm---%s" % (n, fg, cell_pad[3:])
+        elif options.satmal:
+            return "\x1b[48;5;%d;%sm.%02x%s" % (n, fg, hexsat, cell_pad[3:])
 
     def blank():
         return "\x1b[0m%s" % (cell_pad,)
 
     for ln in chart:
-        for row in range(cell_rows):
+        for row in range(options.rows):
             out = []
             for n in ln:
                 if n<0:
@@ -573,6 +654,12 @@ def main():
     parser.add_option("-g", "--gray", action="store_true",
         dest="graymal", default=False,
         help="display gray level on chart")
+    parser.add_option("-H", "--hue", action="store_true",
+        dest="huemal", default=False,
+        help="display hue on chart")
+    parser.add_option("-S", "--saturation", action="store_true",
+        dest="satmal", default=False,
+        help="display saturation on chart")
     parser.add_option("-x", "--cell-columns", dest="columns", type="int",
         default=2, metavar="COLS",
         help="set the number of columns for drawing each colour cell "
@@ -619,10 +706,7 @@ def main():
             error("Chart %r not found!" % cname)
             continue
         chart = parse_chart(charts[colours][cname])
-        draw_chart(chart, options.origin, options.angle, options.hexadecimal,
-            options.decimal, options.urwidmal, options.graymal,
-            options.columns, options.rows)
-
+        draw_chart(chart, options)
 
 
 if __name__ == '__main__':
