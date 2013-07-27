@@ -104,34 +104,38 @@ cloud_shape_88 = """
 """
 
 boxes = """
-a00a01a02a03a04a05      b00b01b02b03b04b05      c00c01c02c03c04c05
-a10a11a12a13a14a15      b10b11b12b13b14b15      c10c11c12c13c14c15
-a20a21a22a23a24a25      b20b21b22b23b24b25      c20c21c22c23c24c25
-a30a31a32a33a34a35      b30b31b32b33b34b35      c30c31c32c33c34c35
-a40a41a42a43a44a45      b40b41b42b43b44b45      c40c41c42c43c44c45
-a50a51a52a53a54a55      b50b51b52b53b54b55      c50c51c52c53c54c55
+a00a01a02a03a04a05   d00d01d02d03d04d05   +01+02+03+04
+a10a11a12a13a14a15   d10d11d12d13d14d15   +05+06+07+08
+a20a21a22a23a24a25   d20d21d22d23d24d25   +09+10+11+12
+a30a31a32a33a34a35   d30d31d32d33d34d35   +13+14+15+16
+a40a41a42a43a44a45   d40d41d42d43d44d45   +17+18+19+20
+a50a51a52a53a54a55   d50d51d52d53d54d55   +21+22+23+24
 
-d00d01d02d03d04d05      e00e01e02e03e04e05      f00f01f02f03f04f05
-d10d11d12d13d14d15      e10e11e12e13e14e15      f10f11f12f13f14f15
-d20d21d22d23d24d25      e20e21e22e23e24e25      f20f21f22f23f24f25
-d30d31d32d33d34d35      e30e31e32e33e34e35      f30f31f32f33f34f35
-d40d41d42d43d44d45      e40e41e42e43e44e45      f40f41f42f43f44f45
-d50d51d52d53d54d55      e50e51e52e53e54e55      f50f51f52f53f54f55
+b00b01b02b03b04b05   e00e01e02e03e04e05   .00.08.07.15
+b10b11b12b13b14b15   e10e11e12e13e14e15   .01.09.06.14
+b20b21b22b23b24b25   e20e21e22e23e24e25   .02.10.05.13
+b30b31b32b33b34b35   e30e31e32e33e34e35   .04.12.03.11
+b40b41b42b43b44b45   e40e41e42e43e44e45
+b50b51b52b53b54b55   e50e51e52e53e54e55
 
-+01+02+03+04+05+06+07+08+09+10+11+12      .00.01.02.03.04.05.06.07
-+24+23+22+21+20+19+18+17+16+15+14+13      .08.09.10.11.12.13.14.15
+c00c01c02c03c04c05   f00f01f02f03f04f05
+c10c11c12c13c14c15   f10f11f12f13f14f15
+c20c21c22c23c24c25   f20f21f22f23f24f25
+c30c31c32c33c34c35   f30f31f32f33f34f35
+c40c41c42c43c44c45   f40f41f42f43f44f45
+c50c51c52c53c54c55   f50f51f52f53f54f55
 """
 
-
 boxes_88 = """
-a00a01a02a03   c03c02c01c00   +01   .00.08
-a10a11a12a13   c13c12c11c10   +02   .01.09
-a20a21a22a23   c23c22c21c20   +03   .02.10
-a30a31a32a33   c33c32c31c30   +04   .03.11
-b30b31b32b33   d33d32d31d30   +05   .04.12
-b20b21b22b23   d23d22d21d20   +06   .05.13
-b10b11b12b13   d13d12d11d10   +07   .06.14
-b00b01b02b03   d03d02d01d00   +08   .07.15
+a00a01a02a03   c00c01c02c03   .00.08.07.15
+a10a11a12a13   c10c11c12c13   .01.09.06.14
+a20a21a22a23   c20c21c22c23   .02.10.05.13
+a30a31a32a33   c30c31c32c33   .04.12.03.11
+
+b00b01b02b03   d00d01d02d03   +01+02+03+04
+b10b11b12b13   d10d11d12d13   +05+06+07+08
+b20b21b22b23   d20d21d22d23
+b30b31b32b33   d30d31d32d33
 """
 
 
@@ -149,7 +153,6 @@ b20b21b22b23b24b25   d25d24d23d22d21d20   f20f21f22f23f24f25   +10+15
 b10b11b12b13b14b15   d15d14d13d12d11d10   f10f11f12f13f14f15   +11+14
 b00b01b02b03b04b05   d05d04d03d02d01d00   f00f01f02f03f04f05   +12+13
 """
-
 
 slices_88 = """
 a00a01a02a03   c03c02c01c00   +01   .00.08
@@ -362,7 +365,7 @@ def n_to_gray(n):
     # Compute intensity.
     lY = 0.2126*lR + 0.7152*lG + 0.0722*lB
     # Convert intensity from linear color space to sRGB.
-    return 255.0*sRGB(lY)
+    return round(255.0*sRGB(lY))
 
 def n_to_prt(n):
     """Convert a colour number to the format used in the colour charts."""
@@ -469,8 +472,8 @@ def parse_chart(chart):
     return oall
 
 
-def draw_chart(chart, origin, angle, hexadecimal, decimal, urwidmal, cell_cols,
-        cell_rows):
+def draw_chart(chart, origin, angle, hexadecimal, decimal, urwidmal, graymal,
+        cell_cols, cell_rows):
     """Draw a colour chart on the screen.
 
     chart -- chart data parsed by parse_chart()
@@ -479,6 +482,7 @@ def draw_chart(chart, origin, angle, hexadecimal, decimal, urwidmal, cell_cols,
     hexadecimal -- if True display hex palette numbers on the chart
     decimal -- if True display decimal palette numbers on the chart
     urwidmal -- if True display urwid palette colour on the chart
+    graymal -- if True display gray level on the chart
     cell_cols -- number of screen columns per cell
     cell_rows -- number of screen rows per cell
     """
@@ -492,6 +496,8 @@ def draw_chart(chart, origin, angle, hexadecimal, decimal, urwidmal, cell_cols,
         cell_cols = 3
     elif urwidmal and cell_cols < 4:
         cell_cols = 4
+    elif graymal and cell_cols < 2:
+        cell_cols = 2
     cell_pad = " "*cell_cols
 
     def transform_block(n, row):
@@ -502,16 +508,20 @@ def draw_chart(chart, origin, angle, hexadecimal, decimal, urwidmal, cell_cols,
         return block(vtrans, row)
 
     def block(n, row):
-        if not any((hexadecimal, decimal, urwidmal)) or row!=cell_rows-1:
+        if (not any((hexadecimal, decimal, urwidmal, graymal)) or
+                row!=cell_rows-1):
             return "\x1b[48;5;%dm%s" % (n, cell_pad)
         # Use a contrasting foreground color.
-        fg = "37" if n_to_gray(n) <= n_to_gray(8) else "30"
+        gray = n_to_gray(n)
+        fg = "37" if gray <= n_to_gray(8) else "30"
         if hexadecimal:
             return "\x1b[48;5;%d;%sm%02x%s" % (n, fg, n, cell_pad[2:])
         elif decimal:
             return "\x1b[48;5;%d;%sm%03d%s" % (n, fg, n, cell_pad[3:])
         elif urwidmal:
             return "\x1b[48;5;%d;%sm%4s%s" % (n, fg, urwidify(n), cell_pad[4:])
+        elif graymal:
+            return "\x1b[48;5;%d;%sm%02x%s" % (n, fg, gray, cell_pad[2:])
 
     def blank():
         return "\x1b[0m%s" % (cell_pad,)
@@ -560,6 +570,9 @@ def main():
     parser.add_option("-u", "--urwid", action="store_true",
         dest="urwidmal", default=False,
         help="display urwid palette colour on chart")
+    parser.add_option("-g", "--gray", action="store_true",
+        dest="graymal", default=False,
+        help="display gray level on chart")
     parser.add_option("-x", "--cell-columns", dest="columns", type="int",
         default=2, metavar="COLS",
         help="set the number of columns for drawing each colour cell "
@@ -607,7 +620,8 @@ def main():
             continue
         chart = parse_chart(charts[colours][cname])
         draw_chart(chart, options.origin, options.angle, options.hexadecimal,
-            options.decimal, options.urwidmal, options.columns, options.rows)
+            options.decimal, options.urwidmal, options.graymal,
+            options.columns, options.rows)
 
 
 
