@@ -578,14 +578,15 @@ def draw_chart(chart, options):
         return block(vtrans, row)
 
     def block(n, row):
+        hue, sat, val = n_to_HSV(n)
+        gray = n_to_gray(n)
+        if options.match is not None and 0x10 < abs(gray - options.match):
+            return blank()
         if (not any((options.hexadecimal, options.decimal, options.urwidmal,
             options.graymal, options.huemal, options.satmal)) or
             row!=options.rows-1):
             return "\x1b[48;5;%dm%s" % (n, cell_pad)
-        hue, sat, val = n_to_HSV(n)
-        hexsat = round(255.0*sat)
         # Use a contrasting foreground color.
-        gray = n_to_gray(n)
         fg = "37" if gray <= n_to_gray(8) else "30"
         if options.hexadecimal:
             return "\x1b[48;5;%d;%sm%02x%s" % (n, fg, n, cell_pad[2:])
@@ -601,6 +602,7 @@ def draw_chart(chart, options):
             else:
                 return "\x1b[48;5;%d;%sm---%s" % (n, fg, cell_pad[3:])
         elif options.satmal:
+            hexsat = round(255.0*sat)
             return "\x1b[48;5;%d;%sm.%02x%s" % (n, fg, hexsat, cell_pad[3:])
 
     def blank():
@@ -641,6 +643,9 @@ def main():
     parser.add_option("-a", "--angle", dest="angle", type="int",
         default=0, metavar="NUM",
         help="set the angle of the colour cube: 0-5 [default: %default]")
+    parser.add_option("-m", "--match", dest="match", type="int",
+        default=None, metavar="NUM",
+        help="show colors matching gray level [default: %default]")
     parser.add_option("-n", "--numbers", "--hex", action="store_true",
         dest="hexadecimal", default=False,
         help="display hex colour numbers on chart")
