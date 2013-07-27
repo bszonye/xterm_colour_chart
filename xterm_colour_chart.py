@@ -139,38 +139,37 @@ b30b31b32b33   d30d31d32d33
 """
 
 
-hues = """
-
-a00   b00c00d00e00f00f10e10f20d10e20f30c10d20e30f40
-+01   .01.09      f11f21f31               f41
-+02         d11e11f22e21d21         e31
-+03      c11   e22f33f32e32         f42
-+04         d22e33f44   f43
-+05   b10c20d30e40f50e50d40c30b20d50c40b30c50b40b50
-+06      c21d31e41f51   e51d41c31   d51c41   c51
-+07         d32e42f52      e52d42      d52
-+08   .03.11   e43f53         e53
-+09               f54
-b11   a10a20a30a40a50a51a41a52a31a42a53a21a32a43a54
-+10      b21b31b41b51   b52   b42b53   b32b43b54
-+11         c32c42c52         c53      c43c54
-+12   .02.10   d43d53                  d54
-+13               e54
-c22   a11a22a33a44a55a45a34a23a12a35a24a13a25a14a15
-+14      b22b33b44b55   b45b34b23   b35b24   b25
-+15         c33c44c55      c45c34      c35
-+16   .06.14   d44d55         d45
-+17               e55
-d33   a01a02a03a04a05b05b04c05b03c04d05b02c03d04e05
-+18      b12b13b14b15   c15   c14d15   c13d14e15
-+19         c23c24c25         d25      d24e25
-+20   .04.12   d34d35                  e35
-+21               e45
-e44   b01c02d03e04f05f04e03d02c01f03e02d01f02e01f01
-+22      c12d13e14f15   f14e13d12   f13e12   f12
-+23         d23e24f25      f24e23      f23
-+24   .05.13   e34f35         f34
-f55               f45                  .00.08.07.15
+flags = """
+a00   f00
++01   f10f11
++02   f20f21f22
++03   f30f31f32f33      e00
++04   f40f41f42f43f44   e10e11
++05   f50f51f52f53f54   e20e21e22
++06   e50e51e52e53      e30e31e32e33   d00
++07   d50d51d52         e40e41e42e43   d10d11
++08   c50c51            d40d41d42      d20d21d22
++09   b50               c40c41         d30d31d32   c00
+b11   a50               b40            c30c31      c10c11
++10   a51b51            a40            b30         c20c21
++11   a52b52c52         a41b41         a30         b20
++12   a53b53c53d53      a42b42c42      a31b31      a20
++13   a54b54c54d54e54   a43b43c43d43   a32b32c32   a21b21
+c22   a55b55c55d55e55   a44b44c44d44   a33b33c33   a22b22
++14   a45b45c45d45      a34b34c34      a23b23      a12
++15   a35b35c35         a24b24         a13         a02
++16   a25b25            a14            a03         b02b12
++17   a15               a04            b03b13      c02c12
+d33   a05               b04b14         c03c13c23   c01
++18   b05b15            c04c14c24      d03d13d23
++19   c05c15c25         d04d14d24d34   d02d12
++20   d05d15d25d35      e04e14e24e34   d01
++21   e05e15e25e35e45   e03e13e23
+e44   f05f15f25f35f45   e02e12
++22   f04f14f24f34      e01         .15.09.11.10.14.12.13
++23   f03f13f23                     .07.01.03.02.06.04.05
++24   f02f12                        .08b00b10a10a11a01b01
+f55   f01                           .00
 """
 
 
@@ -303,7 +302,7 @@ charts = {
         'cows': cow_shape,
         'whales': whale_shape,
         'boxes' : boxes,
-        'hues'  : hues,
+        'flags' : flags,
         'slices': slices,
         'ribbon': ribbon,
         'clouds': cloud_shape,}}
