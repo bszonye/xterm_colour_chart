@@ -580,15 +580,15 @@ def draw_chart(chart, options):
     def block(n, row):
         hue, sat, val = n_to_HSV(n)
         gray = n_to_gray(n)
-        if options.match is not None and 0x10 < abs(gray - options.match):
-            return blank()
         if (not any((options.hexadecimal, options.decimal, options.urwidmal,
             options.graymal, options.huemal, options.satmal)) or
             row!=options.rows-1):
             return "\x1b[48;5;%dm%s" % (n, cell_pad)
         # Use a contrasting foreground color.
         fg = "37" if gray <= n_to_gray(8) else "30"
-        if options.hexadecimal:
+        if options.match is not None and 0x10 < abs(gray - options.match):
+            return "\x1b[48;5;%dm%s" % (n, cell_pad)
+        elif options.hexadecimal:
             return "\x1b[48;5;%d;%sm%02x%s" % (n, fg, n, cell_pad[2:])
         elif options.decimal:
             return "\x1b[48;5;%d;%sm%03d%s" % (n, fg, n, cell_pad[3:])
